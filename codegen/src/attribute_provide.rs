@@ -3,7 +3,7 @@ use proc_macro2::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{Generics, ItemImpl};
 
-pub(crate) struct ProvideAttribute {
+pub struct ProvideAttribute {
     pub provider_type: TokenStream,
     pub service_type: TokenStream,
     pub generics: Generics,
@@ -11,7 +11,7 @@ pub(crate) struct ProvideAttribute {
 }
 
 // TODO: Assert attribute stream is empty
-pub(crate) fn attribute_provide_impl(_attribute: TokenStream, input: ItemImpl) -> ProvideAttribute {
+pub fn transform(_attribute: &TokenStream, input: ItemImpl) -> ProvideAttribute {
     let struct_type = input.self_ty.to_token_stream();
     let trait_ = input
         .trait_
@@ -71,7 +71,7 @@ mod test {
         };
         let input: ItemImpl = parse2(input).unwrap();
         let attribute = TokenStream::new();
-        let actual = attribute_provide_impl(attribute, input).output.to_string();
+        let actual = transform(&attribute, input).output.to_string();
         let expected = quote! {
             impl some::Trait for some::Struct {}
             impl depcon::Provider<dyn some::Trait> for some::Struct {
@@ -96,7 +96,7 @@ mod test {
         };
         let input: ItemImpl = parse2(input).unwrap();
         let attribute = TokenStream::new();
-        let actual = attribute_provide_impl(attribute, input).output.to_string();
+        let actual = transform(&attribute, input).output.to_string();
         let expected = quote! {
             impl<A, C> Trait<A> for Struct<C>
             where

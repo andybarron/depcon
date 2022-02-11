@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 
-pub(crate) fn import_crate() -> TokenStream {
+pub fn import_crate() -> TokenStream {
     quote!(depcon)
 
     // TODO: Use proc-macro-crate to look up depcon crate and support renaming.

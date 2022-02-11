@@ -1,3 +1,5 @@
+/// Implement `[Provider]<Trait>` for a type. Prefer [`crate::provide`] if
+/// codegen is enabled.
 #[macro_export]
 macro_rules! provide_trait {
     ($provider: ty, $tr: ty) => {
@@ -9,6 +11,9 @@ macro_rules! provide_trait {
     };
 }
 
+/// Flag a type as the default provider for a service when
+/// [`crate::Container::auto`] is used. Prefer [`crate::auto_provide`] if
+/// codegen is enabled.
 #[macro_export]
 macro_rules! auto_register {
     ($provider: ty, $service: ty) => {

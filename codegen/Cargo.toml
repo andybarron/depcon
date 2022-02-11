@@ -2,6 +2,11 @@
 name = "depcon_codegen"
 version = "0.1.0"
 edition = "2021"
+description = "Code generation macros for depcon dependency injection framework"
+license-file = "../LICENSE.txt"
+repository = "https://github.com/andybarron/depcon"
+keywords = ["codegen", "dependency-injection", "di", "inversion-of-control", "ioc"]
+categories = ["configuration"]
 
 [dependencies]
 proc-macro2 = "1.0.36"
@@ -9,7 +14,7 @@ quote = "1.0.15"
 syn = { version = "1.0.86", features = ["full"] }
 
 [dev-dependencies]
-depcon = { path = ".." }
+depcon = { path = "..", version = "0.1.0" }
 trybuild = "1.0.55"
 
 [lib]

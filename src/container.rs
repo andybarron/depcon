@@ -1,6 +1,10 @@
 use crate::*;
 use std::{any::Any, collections::HashMap, sync::Arc};
 
+/// Dependency injection container where the magic happens.
+///
+/// This struct holds information about what provider types provide what
+/// services and how to initialize them.
 #[derive(Default, Debug)]
 pub struct Container {
     provider_factories: HashMap<TypeInfo, ProviderFactory>,
@@ -20,9 +24,17 @@ struct ProviderFactory(
 
 #[derive(Clone, derivative::Derivative)]
 #[derivative(Debug)]
-struct ServiceConverter(#[derivative(Debug = "ignore")] Arc<dyn Fn(&DynamicBox) -> DynamicBox>);
+struct ServiceConverter(
+    #[derivative(Debug = "ignore")] Arc<dyn Fn(&DynamicBox) -> Result<DynamicBox, Error>>,
+);
 
 impl Container {
+    /// Create a container with all providers pre-registered from
+    /// [`auto_provide`] and [`auto_register!`].
+    ///
+    /// # Errors
+    /// This function fails if multiple providers are auto-registered
+    /// for a single service type.
     pub fn auto() -> Result<Self, Error> {
         let mut container = Self::empty();
         for hook in inventory::iter::<DefaultProviderHook>() {
@@ -30,10 +42,11 @@ impl Container {
         }
         Ok(container)
     }
+    /// Create an empty container. Useful for testing and manual registration.
+    #[must_use]
     pub fn empty() -> Self {
         Self::default()
     }
-    #[tracing::instrument]
     fn init_provider(&mut self, res: Resolution) -> Result<(), Error> {
         let cycle = self.init_stack.contains(&res);
         self.init_stack.push(res);
@@ -56,7 +69,6 @@ impl Container {
         self.init_stack.pop();
         result
     }
-    #[tracing::instrument]
     fn init_service(&mut self, service_type: TypeInfo) -> Result<(), Error> {
         let (provider_type, converter) =
             self.provide_map
@@ -76,13 +88,17 @@ impl Container {
         }
 
         let provider = self.providers.get(&provider_type).unwrap();
-        let service = (converter.0)(provider);
+        let service = (converter.0)(provider)?;
         self.services.insert(service_type, service);
         Ok(())
     }
 }
 
 impl Container {
+    /// Register type `TProvider` as the provider for type `TService`.
+    ///
+    /// # Errors
+    /// This method fails if a provider is already registered for `TService`.
     pub fn register<TProvider, TService: ?Sized>(&mut self) -> Result<(), Error>
     where
         TProvider: Injectable + Provider<TService>,
@@ -100,6 +116,7 @@ impl Container {
         self.register_overwrite::<TProvider, TService>();
         Ok(())
     }
+    /// Same as [`Container::register`], but overwrites existing registrations.
     pub fn register_overwrite<TProvider, TService: ?Sized>(&mut self)
     where
         TProvider: Injectable + Provider<TService>,
@@ -119,15 +136,29 @@ impl Container {
             service_type,
             (
                 provider_type,
-                ServiceConverter(Arc::new(|any| {
-                    let provider = any.downcast_ref::<Arc<TProvider>>().unwrap().clone();
+                ServiceConverter(Arc::new(move |any| {
+                    let provider = any
+                        .downcast_ref::<Arc<TProvider>>()
+                        .ok_or({
+                            let box_type = TypeInfo::of::<DynamicBox>();
+                            Error::Internal {
+                                message: format!(
+                                    "Failed to downcast {box_type} to Arc<{service_type}>"
+                                ),
+                            }
+                        })?
+                        .clone();
                     let service: Arc<TService> = provider.provide();
-                    Box::new(service)
+                    Ok(Box::new(service))
                 })),
             ),
         );
     }
-    #[tracing::instrument]
+    /// Resolve an instance of type `T`.
+    ///
+    /// # Errors
+    /// This method fails if no provider has been registered for `T` or
+    /// any of its transitive dependencies.
     pub fn resolve<T>(&mut self) -> Result<Arc<T>, Error>
     where
         T: ?Sized + 'static,
@@ -137,7 +168,18 @@ impl Container {
             self.init_service(service_type)?;
         }
 
-        let service_ptr = self.services.get(&service_type).unwrap();
-        Ok(service_ptr.downcast_ref::<Arc<T>>().unwrap().clone())
+        let service_ptr = self
+            .services
+            .get(&service_type)
+            .ok_or_else(|| Error::Internal {
+                message: format!("No service instance for {service_type}"),
+            })?;
+        let service_ptr = service_ptr.downcast_ref::<Arc<T>>().ok_or_else(|| {
+            let box_type = TypeInfo::of::<DynamicBox>();
+            Error::Internal {
+                message: format!("Failed to downcast {box_type} to Arc<{service_type}>"),
+            }
+        })?;
+        Ok(service_ptr.clone())
     }
 }

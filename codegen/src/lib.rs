@@ -1,32 +1,40 @@
-#![warn(clippy::all, clippy::nursery, clippy::pedantic, clippy::cargo)]
+#![warn(
+    missing_docs,
+    clippy::all,
+    clippy::nursery,
+    clippy::pedantic,
+    clippy::cargo
+)]
+#![allow(clippy::wildcard_imports)]
+#![doc = include_str!("../README.md")]
 mod attribute_auto_provide;
 mod attribute_provide;
 mod derive_injectable;
 mod utils;
 
-use attribute_auto_provide::attribute_auto_provide_impl;
-use attribute_provide::attribute_provide_impl;
-use derive_injectable::derive_injectable_impl;
 use proc_macro::TokenStream;
 use syn::parse_macro_input;
 
+/// Procedural macro for `#[derive(Injectable)]`
 #[proc_macro_derive(Injectable)]
 pub fn derive_injectable(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input);
-    derive_injectable_impl(input).into()
+    derive_injectable::transform(input).into()
 }
 
 // TODO: support on struct definitions to provide Arc<Self>
+/// Procedural macro for `#[provide]`
 #[proc_macro_attribute]
 pub fn provide(attribute: TokenStream, item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item);
-    attribute_provide_impl(attribute.into(), input)
+    attribute_provide::transform(&attribute.into(), input)
         .output
         .into()
 }
 
+/// Procedural macro for `#[auto_provide]`
 #[proc_macro_attribute]
 pub fn auto_provide(attribute: TokenStream, item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item);
-    attribute_auto_provide_impl(attribute.into(), input).into()
+    attribute_auto_provide::transform(&attribute.into(), input).into()
 }
