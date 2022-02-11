@@ -7,7 +7,6 @@ mod injectable;
 mod macros;
 mod provider;
 mod resolution;
-mod resolver;
 mod sync_container;
 mod type_info;
 
@@ -17,7 +16,6 @@ pub use inventory;
 pub mod prelude {
     pub use crate::Container;
     pub use crate::Injectable;
-    pub use crate::Resolver;
     pub use crate::SyncContainer;
 
     #[cfg(feature = "codegen")]
@@ -30,7 +28,6 @@ pub use crate::error::Error;
 pub use crate::injectable::Injectable;
 pub use crate::provider::Provider;
 pub use crate::resolution::Resolution;
-pub use crate::resolver::Resolver;
 pub use crate::sync_container::SyncContainer;
 pub use crate::type_info::TypeInfo;
 

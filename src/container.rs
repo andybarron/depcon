@@ -127,11 +127,8 @@ impl Container {
             ),
         );
     }
-}
-
-impl Resolver for Container {
     #[tracing::instrument]
-    fn resolve<T>(&mut self) -> Result<Arc<T>, Error>
+    pub fn resolve<T>(&mut self) -> Result<Arc<T>, Error>
     where
         T: ?Sized + 'static,
     {

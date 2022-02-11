@@ -2,7 +2,7 @@ use crate::*;
 use std::{rc::Rc, sync::Arc};
 
 pub trait Injectable: Sized + 'static {
-    fn inject(container: &mut impl Resolver) -> Result<Self, Error>;
+    fn inject(container: &mut Container) -> Result<Self, Error>;
 }
 
 impl<T> Injectable for Rc<T>
@@ -10,7 +10,7 @@ where
     T: Injectable,
 {
     #[tracing::instrument(skip(container))]
-    fn inject(container: &mut impl Resolver) -> Result<Self, Error> {
+    fn inject(container: &mut Container) -> Result<Self, Error> {
         T::inject(container).map(Self::new)
     }
 }
@@ -20,7 +20,7 @@ where
     T: Injectable,
 {
     #[tracing::instrument(skip(container))]
-    fn inject(container: &mut impl Resolver) -> Result<Self, Error> {
+    fn inject(container: &mut Container) -> Result<Self, Error> {
         T::inject(container).map(Self::new)
     }
 }
@@ -31,7 +31,7 @@ where
 //     T: Default + 'static,
 // {
 //     #[tracing::instrument(skip(_container))]
-//     fn inject(_container: &mut impl Resolver) -> Result<Self, Error> {
+//     fn inject(_container: &mut Container) -> Result<Self, Error> {
 //         Ok(Self::default())
 //     }
 // }

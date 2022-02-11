@@ -5,7 +5,7 @@ _**Dep**endency injection **con**tainer_
 ## Quickstart
 
 ```rust
-use depcon::{Injectable, auto_provide, Container, Resolver};
+use depcon::{Injectable, auto_provide, Container};
 use std::sync::Arc;
 
 // 1. Define your services!
