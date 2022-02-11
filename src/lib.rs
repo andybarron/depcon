@@ -1,4 +1,4 @@
-#![warn(clippy::all, clippy::nursery)]
+#![warn(clippy::all, clippy::nursery, clippy::pedantic, clippy::cargo)]
 #![doc = include_str!("../README.md")]
 mod container;
 mod default_provider_hook;

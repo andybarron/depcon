@@ -1,3 +1,4 @@
+#![warn(clippy::all, clippy::nursery, clippy::pedantic, clippy::cargo)]
 mod attribute_auto_provide;
 mod attribute_provide;
 mod derive_injectable;
