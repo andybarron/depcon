@@ -13,12 +13,11 @@ proc-macro2 = "1.0.36"
 quote = "1.0.15"
 syn = { version = "1.0.86", features = ["full"] }
 
-# TODO: Enable on next publish
-# [dev-dependencies]
-# # version set to * due to:
-# # https://github.com/rust-lang/cargo/issues/4242
-# depcon = { path = "..", version = "*" }
-# trybuild = "1.0.55"
+[dev-dependencies]
+# version set to * due to:
+# https://github.com/rust-lang/cargo/issues/4242
+depcon = { path = "..", version = "*" }
+trybuild = "1.0.55"
 
 [lib]
 proc-macro = true

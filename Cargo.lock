@@ -27,9 +27,11 @@ dependencies = [
 name = "depcon_codegen"
 version = "0.0.0"
 dependencies = [
+ "depcon",
  "proc-macro2",
  "quote",
  "syn",
+ "trybuild",
 ]
 
 [[package]]
