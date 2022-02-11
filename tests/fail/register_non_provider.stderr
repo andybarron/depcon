@@ -1,0 +1,11 @@
+error[E0277]: the trait bound `NonProvider: Provider<(dyn DummyService + 'static)>` is not satisfied
+  --> tests/fail/register_non_provider.rs:10:15
+   |
+10 |     container.register::<NonProvider, dyn DummyService>();
+   |               ^^^^^^^^ the trait `Provider<(dyn DummyService + 'static)>` is not implemented for `NonProvider`
+   |
+note: required by a bound in `depcon::Container::register`
+  --> src/container.rs
+   |
+   |         TProvider: Injectable + Provider<TService>,
+   |                                 ^^^^^^^^^^^^^^^^^^ required by this bound in `depcon::Container::register`

@@ -1,0 +1,23 @@
+[package]
+name = "depcon"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+members = [
+  "codegen",
+]
+
+[dependencies]
+depcon_codegen = { path = "./codegen", optional = true }
+derivative = "2.2.0"
+inventory = "0.2.2"
+thiserror = "1.0.30"
+tracing = { version = "0.1.30", default-features = false, features = ["attributes"] }
+
+[dev-dependencies]
+trybuild = "1.0.55"
+
+[features]
+default = ["codegen"]
+codegen = ["depcon_codegen"]

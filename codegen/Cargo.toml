@@ -1,0 +1,16 @@
+[package]
+name = "depcon_codegen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+proc-macro2 = "1.0.36"
+quote = "1.0.15"
+syn = { version = "1.0.86", features = ["full"] }
+
+[dev-dependencies]
+depcon = { path = ".." }
+trybuild = "1.0.55"
+
+[lib]
+proc-macro = true

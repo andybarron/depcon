@@ -1,0 +1,13 @@
+error[E0478]: lifetime bound not satisfied
+ --> tests/derive_injectable/fail/non_static.rs:4:10
+  |
+4 | #[derive(Injectable)]
+  |          ^^^^^^^^^^
+  |
+note: lifetime parameter instantiated with the lifetime `'a` as defined here
+ --> tests/derive_injectable/fail/non_static.rs:5:18
+  |
+5 | struct NonStatic<'a>(PhantomData<&'a ()>);
+  |                  ^^
+  = note: but lifetime parameter must outlive the static lifetime
+  = note: this error originates in the derive macro `Injectable` (in Nightly builds, run with -Z macro-backtrace for more info)
