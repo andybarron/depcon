@@ -10,7 +10,7 @@ macro_rules! provide_trait {
 }
 
 #[macro_export]
-macro_rules! register_default {
+macro_rules! auto_register {
     ($provider: ty, $service: ty) => {
         $crate::inventory::submit! {
             $crate::DefaultProviderHook(|c| {

@@ -10,7 +10,7 @@ mod resolution;
 mod sync_container;
 mod type_info;
 
-// Used by register_default! macro
+// Used by auto_register! macro
 pub use inventory;
 
 pub mod prelude {

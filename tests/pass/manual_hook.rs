@@ -6,14 +6,14 @@ trait IDb: Debug {}
 struct Db;
 impl IDb for Db {}
 provide_trait!(Db, dyn IDb);
-register_default!(Db, dyn IDb);
+auto_register!(Db, dyn IDb);
 
 trait IRepo: Debug {}
 #[derive(Debug, Injectable)]
 struct Repo;
 impl IRepo for Repo {}
 provide_trait!(Repo, dyn IRepo);
-register_default!(Repo, dyn IRepo);
+auto_register!(Repo, dyn IRepo);
 
 fn main() {
     let mut container = Container::auto().unwrap();

@@ -2,6 +2,6 @@ error: custom attribute panicked
  --> tests/attribute_auto_provide/fail/generics.rs:8:1
   |
 8 | #[auto_provide]
-  | ^^^^^^^^^^^^^^^^^^
+  | ^^^^^^^^^^^^^^^
   |
-  = help: message: Only concrete types can be registered. Use register_default! instead
+  = help: message: Only concrete types can be registered. Use auto_register! instead

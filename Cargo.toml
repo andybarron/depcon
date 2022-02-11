@@ -21,3 +21,6 @@ trybuild = "1.0.55"
 [features]
 default = ["codegen"]
 codegen = ["depcon_codegen"]
+
+[workspace.metadata.workspaces]
+allow_branch = "main"
