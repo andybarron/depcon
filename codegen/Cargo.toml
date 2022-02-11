@@ -6,7 +6,7 @@ description = "Code generation macros for depcon dependency injection framework"
 license-file = "../LICENSE.txt"
 repository = "https://github.com/andybarron/depcon"
 keywords = ["codegen", "dependency-injection", "di", "inversion-of-control", "ioc"]
-categories = ["configuration"]
+categories = ["config"]
 
 [dependencies]
 proc-macro2 = "1.0.36"

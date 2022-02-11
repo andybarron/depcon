@@ -6,7 +6,7 @@ description = "Simple & flexible dependency injection framework"
 license-file = "LICENSE.txt"
 repository = "https://github.com/andybarron/depcon"
 keywords = ["dependency-injection", "di", "inversion-of-control", "ioc"]
-categories = ["configuration"]
+categories = ["config"]
 
 [workspace]
 members = [
