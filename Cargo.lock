@@ -14,7 +14,7 @@ dependencies = [
 
 [[package]]
 name = "depcon"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "depcon_codegen",
  "derivative",
@@ -25,7 +25,7 @@ dependencies = [
 
 [[package]]
 name = "depcon_codegen"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "depcon",
  "proc-macro2",
