@@ -31,7 +31,8 @@ fmt:
 fmt-check:
   cargo fmt --check
 
-publish: prepublish publish-only
+publish level:
+  cargo release --execute --workspace {{level}}
 
 test:
   cargo test --workspace
@@ -46,13 +47,6 @@ alias ds := doc-server
 alias f := fmt
 alias fc := fmt-check
 alias t := test
-
-# helper commands
-
-prepublish: fmt-check test
-
-publish-only:
-  cargo workspaces publish
 
 # CI commands
 

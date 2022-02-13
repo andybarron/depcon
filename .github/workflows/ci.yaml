@@ -34,10 +34,7 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v1
       - name: Install tools
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: just cargo-tarpaulin
+        run: cargo install just cargo-tarpaulin
       - name: Check format (stable)
         if: ${{ matrix.rust == 'stable' }}
         run: just ci-format

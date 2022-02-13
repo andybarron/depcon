@@ -1,0 +1,7 @@
+consolidate-commits = true
+consolidate-pushes = true
+dev-version = true
+dev-version-ext = "dev"
+shared-version = true
+tag-prefix = ""
+tag-name = "v{{version}}"
