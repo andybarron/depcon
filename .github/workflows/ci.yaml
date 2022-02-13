@@ -33,7 +33,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: install
-          args: just tarpaulin
+          args: just cargo-tarpaulin
       - name: Check format
         if: ${{ matrix.rust == 'stable' }}
         run: just ci-format
