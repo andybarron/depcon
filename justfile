@@ -11,6 +11,7 @@ coverage:
   cargo tarpaulin -v --workspace \
     --all-features --ignore-tests \
     --out Html --out Xml \
+    --timeout 180 \
     --output-dir target/coverage
 
 coverage-server:
