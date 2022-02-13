@@ -11,12 +11,13 @@ jobs:
     name: Format, build, & test
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         rust:
           - stable
-          # - beta
-          # - nightly
-          # - 1.58.0
+          - beta
+          - nightly
+          - 1.58.0
     steps:
       # https://github.com/actions/virtual-environments/issues/264#issuecomment-966491739
       - name: Install zsh
@@ -43,18 +44,18 @@ jobs:
       - name: Build and lint (stable)
         if: ${{ matrix.rust == 'stable' }}
         run: just ci-build-lint
-      # - name: Build (non-stable)
-      #   if: ${{ matrix.rust != 'stable' }}
-      #   run: just ci-build-only
+      - name: Build (non-stable)
+        if: ${{ matrix.rust != 'stable' }}
+        run: just ci-build-only
       - name: Run tests and generate coverage report (stable)
         if: ${{ matrix.rust == 'stable' }}
         run: just ci-test-coverage
-      # - name: Run tests (non-stable)
-      #   if: ${{ matrix.rust != 'stable' }}
-      #   run: just ci-test-only
-      # - name: Upload to codecov.io (stable)
-      #   if: ${{ matrix.rust == 'stable' }}
-      #   uses: codecov/codecov-action@v2
-      #   with:
-      #     directory: target/coverage
-      #     fail_ci_if_error: true
+      - name: Run tests (non-stable)
+        if: ${{ matrix.rust != 'stable' }}
+        run: just ci-test-only
+      - name: Upload to codecov.io (stable)
+        if: ${{ matrix.rust == 'stable' }}
+        uses: codecov/codecov-action@v2
+        with:
+          directory: target/coverage
+          fail_ci_if_error: true
