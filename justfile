@@ -63,4 +63,6 @@ ci-build-lint:
 
 ci-format: fmt-check
 
-ci-test: coverage
+ci-test-only: test
+
+ci-test-coverage: coverage

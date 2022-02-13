@@ -37,18 +37,22 @@ jobs:
         with:
           command: install
           args: just cargo-tarpaulin
-      - name: Check format
+      - name: Check format (stable)
         if: ${{ matrix.rust == 'stable' }}
         run: just ci-format
-      - name: Build and lint on stable
+      - name: Build and lint (stable)
         if: ${{ matrix.rust == 'stable' }}
         run: just ci-build-lint
-      - name: Build on non-stable toolchains
+      - name: Build (non-stable)
         if: ${{ matrix.rust != 'stable' }}
         run: just ci-build-only
-      - name: Run tests and generate coverage report
-        run: just ci-test
-      - name: Upload to codecov.io
+      - name: Run tests and generate coverage report (stable)
+        if: ${{ matrix.rust == 'stable' }}
+        run: just ci-test-coverage
+      - name: Run tests (non-stable)
+        if: ${{ matrix.rust != 'stable' }}
+        run: just ci-test-only
+      - name: Upload to codecov.io (stable)
         if: ${{ matrix.rust == 'stable' }}
         uses: codecov/codecov-action@v2
         with:
