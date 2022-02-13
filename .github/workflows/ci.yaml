@@ -48,6 +48,6 @@ jobs:
       - name: Upload to codecov.io
         if: ${{ matrix.rust == 'stable' }}
         uses: codecov/codecov-action@v2
-        directory: target/coverage
         with:
+          directory: target/coverage
           fail_ci_if_error: true
