@@ -14,9 +14,7 @@ quote = "1.0.15"
 syn = { version = "1.0.86", features = ["full"] }
 
 [dev-dependencies]
-# version set to * due to:
-# https://github.com/rust-lang/cargo/issues/4242
-depcon = { path = "..", version = "*" }
+depcon = { path = ".." }
 trybuild = "1.0.55"
 
 [lib]

@@ -3,6 +3,7 @@ consolidate-pushes = true
 dev-version = true
 dev-version-ext = "dev"
 pre-release-hook = "./scripts/release_hook"
+publish = false
 shared-version = true
 tag-prefix = ""
 tag-name = "v{{version}}"
