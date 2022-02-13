@@ -1,0 +1,53 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  format_build_test:
+    name: Format, build, & test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - beta
+          - nightly
+          - 1.56.0
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+          components: clippy, rustfmt
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v1
+      - name: Install tools
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: just tarpaulin
+      - name: Check format
+        if: ${{ matrix.rust == 'stable' }}
+        run: just ci-format
+      - name: Build and lint on stable
+        if: ${{ matrix.rust == 'stable' }}
+        run: just ci-build-lint
+      - name: Build on non-stable toolchains
+        if: ${{ matrix.rust != 'stable' }}
+        run: just ci-build-only
+      - name: Run tests and generate coverage report
+        run: just ci-test
+      - name: Upload to codecov.io
+        if: ${{ matrix.rust == 'stable' }}
+        uses: codecov/codecov-action@v2
+        directory: target/coverage
+        with:
+          fail_ci_if_error: true

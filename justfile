@@ -52,3 +52,15 @@ prepublish: fmt-check test
 
 publish-only:
   cargo workspaces publish
+
+# CI commands
+
+ci-build-only:
+  RUSTFLAGS="-D warnings" cargo check --verbose --all-features --all-targets
+
+ci-build-lint:
+  RUSTFLAGS="-D warnings" cargo clippy --verbose --all-features --all-targets
+
+ci-format: fmt-check
+
+ci-test: coverage
