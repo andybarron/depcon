@@ -9,6 +9,8 @@
 - Allow `auto_register` to provide `Self` if no second argument is passed
 - Improve `TypeInfo` `Debug` impl
 - Automatically implement `Provider<Self>` for all types
+- Allow resolution of concrete service providers by auto-registering
+  provider types when registering service types
 
 ## 0.1.0
 

@@ -12,7 +12,22 @@ impl<T> Provider<Self> for T
 where
     T: 'static,
 {
+    #[cfg(not(tarpaulin_include))]
     fn provide(self: Arc<Self>) -> Arc<Self> {
         self
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::sync::Arc;
+
+    #[test]
+    fn test_all_types_provide_self() {
+        struct Service;
+
+        let arc = Arc::new(Service);
+        let _arc2: Arc<Service> = arc.provide();
     }
 }

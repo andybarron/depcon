@@ -47,27 +47,44 @@ impl Container {
     pub fn empty() -> Self {
         Self::default()
     }
-    fn init_provider(&mut self, res: Resolution) -> Result<(), Error> {
+    fn init_provider(&mut self, res: Resolution) -> Result<&DynamicBox, Error> {
         let cycle = self.init_stack.contains(&res);
         self.init_stack.push(res);
 
         // do main work inside closure to avoid early returns leaving init stack
         // in a weird state
-        let init = &mut || -> Result<(), Error> {
+        let init = &mut || -> Result<DynamicBox, Error> {
             if cycle {
                 return Err(Error::DependencyCycle {
                     service: res.service,
                     stack: self.init_stack.clone(),
                 });
             }
-            let factory = self.provider_factories.get(&res.provider).unwrap().clone();
+            let factory = self
+                .provider_factories
+                .get(&res.provider)
+                .ok_or_else(|| {
+                    let provider = res.provider;
+                    let service = res.service;
+                    Error::Internal {
+                        message: format!("No factory for provider {provider} (service: {service})"),
+                    }
+                })?
+                .clone();
             let provider = (factory.0)(self)?;
-            self.providers.insert(res.provider, provider);
-            Ok(())
+            Ok(provider)
         };
         let result = init();
         self.init_stack.pop();
-        result
+        let provider = result?;
+
+        // slightly hacky workaround to insert a value into a HashMap
+        // and also return a reference to that same value:
+        // delete the value from the map, then use the entry API's
+        // `or_insert` method, since we know the entry is now empty
+        self.providers.remove(&res.provider);
+        let entry = self.providers.entry(res.provider);
+        Ok(entry.or_insert(provider))
     }
     fn init_service(&mut self, service_type: TypeInfo) -> Result<&DynamicBox, Error> {
         let (provider_type, converter) =
@@ -83,11 +100,11 @@ impl Container {
             provider: provider_type,
         };
 
-        if !self.providers.contains_key(&provider_type) {
-            self.init_provider(resolution)?;
-        }
+        let provider = match self.providers.get(&provider_type) {
+            Some(ptr) => ptr,
+            None => self.init_provider(resolution)?,
+        };
 
-        let provider = self.providers.get(&provider_type).unwrap();
         let service = (converter.0)(provider)?;
 
         // slightly hacky workaround to insert a value into a HashMap
@@ -130,14 +147,22 @@ impl Container {
     {
         let service_type = TypeInfo::of::<TService>();
         let provider_type = TypeInfo::of::<TProvider>();
-        self.provider_factories.insert(
-            provider_type,
-            ProviderFactory(Arc::new(|c| {
-                let instance = TProvider::inject(c)?;
-                let arc: Arc<TProvider> = Arc::new(instance);
-                Ok(Box::new(arc))
-            })),
-        );
+
+        // always allow resolving concrete provider types
+        if service_type != provider_type && !self.provider_factories.contains_key(&provider_type) {
+            self.register_overwrite::<TProvider, TProvider>();
+        }
+
+        self.provider_factories
+            .entry(provider_type)
+            .or_insert_with(|| {
+                ProviderFactory(Arc::new(|c| {
+                    let instance = TProvider::inject(c)?;
+                    let arc: Arc<TProvider> = Arc::new(instance);
+                    Ok(Box::new(arc))
+                }))
+            });
+
         self.provide_map.insert(
             service_type,
             (
@@ -247,6 +272,45 @@ mod test {
 
         let actual = container.resolve::<Service>().unwrap_err().to_string();
         let expected = "Internal error: Failed to downcast service alloc::boxed::Box<dyn core::any::Any> to Arc<depcon::container::test::test_service_downcast_failure::Service>";
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_register_service_resolve_provider() {
+        trait Interface {}
+
+        #[derive(Injectable, Debug, PartialEq)]
+        struct Implementation;
+
+        impl Interface for Implementation {}
+        provide_trait!(Implementation, dyn Interface);
+
+        let mut container = Container::empty();
+        container
+            .register::<Implementation, dyn Interface>()
+            .unwrap();
+
+        let actual = container.resolve::<Implementation>();
+        let expected = Ok(Arc::new(Implementation));
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_missing_provider_factory() {
+        #[derive(Injectable, Debug)]
+        struct Service;
+
+        let mut container = Container::empty();
+        container.register::<Service, Service>().unwrap();
+        container.provider_factories.clear();
+
+        let error = container.resolve::<Service>().unwrap_err();
+        let actual = format!("{}", error);
+        let expected = "Internal error: No factory for provider \
+            depcon::container::test::test_missing_provider_factory::Service \
+            (service: depcon::container::test::test_missing_provider_factory::Service)";
 
         assert_eq!(actual, expected);
     }
