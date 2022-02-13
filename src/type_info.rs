@@ -9,10 +9,12 @@ use std::{
 /// Basically identical to [`std::any::TypeId`], but with the type's name
 /// for debugging.
 #[derive(derivative::Derivative, Clone, Copy, Eq)]
+#[derivative(Debug)]
 pub struct TypeInfo {
     /// ID of the type
     pub id: TypeId,
     /// Name of the type
+    #[derivative(Debug = "ignore")]
     pub name: &'static str,
 }
 
@@ -36,12 +38,6 @@ impl PartialEq for TypeInfo {
 impl Hash for TypeInfo {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state);
-    }
-}
-
-impl fmt::Debug for TypeInfo {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.name.fmt(f)
     }
 }
 

@@ -1,2 +1,4 @@
 target/
 *.rs.bk
+cobertura.xml
+tarpaulin-report.html

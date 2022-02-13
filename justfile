@@ -7,6 +7,16 @@ default: check
 check:
   cargo clippy
 
+coverage:
+  cargo tarpaulin -v --workspace \
+    --all-features --ignore-tests \
+    --out Html --out Xml \
+    --output-dir target/coverage
+
+coverage-server:
+  echo "http://localhost:8000/tarpaulin-report.html"
+  python3 -m http.server --directory target/coverage
+
 doc:
   cargo doc --workspace
 
@@ -28,6 +38,8 @@ test:
 # aliases
 
 alias c := check
+alias cov := coverage
+alias covs := coverage-server
 alias d := doc
 alias ds := doc-server
 alias f := fmt

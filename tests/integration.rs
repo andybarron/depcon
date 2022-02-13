@@ -36,7 +36,7 @@ fn test_resolve_chain() {
     struct DbImpl;
 
     impl DbService for DbImpl {}
-    provide_trait!(DbImpl, dyn DbService);
+    impl_provider!(DbImpl, dyn DbService);
 
     #[derive(Injectable, Debug)]
     struct RepoImpl {
@@ -44,7 +44,7 @@ fn test_resolve_chain() {
     }
 
     impl RepoService for RepoImpl {}
-    provide_trait!(RepoImpl, dyn RepoService);
+    impl_provider!(RepoImpl, dyn RepoService);
 
     let mut c = Container::empty();
     c.register::<DbImpl, dyn DbService>().unwrap();
@@ -65,12 +65,12 @@ fn test_dependency_cycle() {
     #[derive(Debug, Injectable)]
     struct CycleImplA(Arc<dyn CycleB>);
     impl CycleA for CycleImplA {}
-    provide_trait!(CycleImplA, dyn CycleA);
+    impl_provider!(CycleImplA, dyn CycleA);
 
     #[derive(Debug, Injectable)]
     struct CycleImplB(Arc<dyn CycleA>);
     impl CycleB for CycleImplB {}
-    provide_trait!(CycleImplB, dyn CycleB);
+    impl_provider!(CycleImplB, dyn CycleB);
 
     let mut c = Container::empty();
     c.register::<CycleImplA, dyn CycleA>().unwrap();
@@ -86,14 +86,37 @@ fn test_dependency_cycle() {
     assert_eq!(actual, expected);
 }
 
+mod hook {
+    use depcon::*;
+    use std::fmt::Debug;
+
+    trait IDb: Debug {}
+    #[derive(Debug, Injectable)]
+    struct Db;
+    impl IDb for Db {}
+    impl_provider!(Db, dyn IDb);
+    auto_register!(Db, dyn IDb);
+
+    trait IRepo: Debug {}
+    #[derive(Debug, Injectable)]
+    struct Repo;
+    impl IRepo for Repo {}
+    impl_provider!(Repo, dyn IRepo);
+    auto_register!(Repo, dyn IRepo);
+
+    #[test]
+    fn test_auto_register() {
+        let mut container = Container::auto().unwrap();
+        let result = container.resolve::<dyn IRepo>();
+
+        let actual = format!("{:?}", result);
+        let expected = "Ok(Repo)".to_string();
+        assert_eq!(actual, expected);
+    }
+}
+
 #[test]
 fn test_compile_failures() {
     let t = TestCases::new();
     t.compile_fail("tests/fail/*.rs");
-}
-
-#[test]
-fn test_passing_cases() {
-    let t = TestCases::new();
-    t.pass("tests/pass/*.rs");
 }

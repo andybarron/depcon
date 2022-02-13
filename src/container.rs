@@ -69,7 +69,7 @@ impl Container {
         self.init_stack.pop();
         result
     }
-    fn init_service(&mut self, service_type: TypeInfo) -> Result<(), Error> {
+    fn init_service(&mut self, service_type: TypeInfo) -> Result<&DynamicBox, Error> {
         let (provider_type, converter) =
             self.provide_map
                 .get(&service_type)
@@ -89,8 +89,14 @@ impl Container {
 
         let provider = self.providers.get(&provider_type).unwrap();
         let service = (converter.0)(provider)?;
-        self.services.insert(service_type, service);
-        Ok(())
+
+        // slightly hacky workaround to insert a value into a HashMap
+        // and also return a reference to that same value:
+        // delete the value from the map, then use the entry API's
+        // `or_insert` method, since we know the entry is now empty
+        self.services.remove(&service_type);
+        let entry = self.services.entry(service_type);
+        Ok(entry.or_insert(service))
     }
 }
 
@@ -136,6 +142,8 @@ impl Container {
             service_type,
             (
                 provider_type,
+                // TODO: Fix funky coverage results for format! macro and downcast_ref method.
+                //       https://github.com/xd009642/tarpaulin/issues/351
                 ServiceConverter(Arc::new(move |any| {
                     let provider = any
                         .downcast_ref::<Arc<TProvider>>()
@@ -143,7 +151,7 @@ impl Container {
                             let box_type = TypeInfo::of::<DynamicBox>();
                             Error::Internal {
                                 message: format!(
-                                    "Failed to downcast {box_type} to Arc<{service_type}>"
+                                    "Failed to downcast provider {box_type} to Arc<{service_type}>"
                                 ),
                             }
                         })?
@@ -164,22 +172,85 @@ impl Container {
         T: ?Sized + 'static,
     {
         let service_type = TypeInfo::of::<T>();
-        if !self.services.contains_key(&service_type) {
-            self.init_service(service_type)?;
-        }
+        let service_ptr = match self.services.get(&service_type) {
+            Some(ptr) => ptr,
+            None => self.init_service(service_type)?,
+        };
 
-        let service_ptr = self
-            .services
-            .get(&service_type)
-            .ok_or_else(|| Error::Internal {
-                message: format!("No service instance for {service_type}"),
-            })?;
         let service_ptr = service_ptr.downcast_ref::<Arc<T>>().ok_or_else(|| {
             let box_type = TypeInfo::of::<DynamicBox>();
             Error::Internal {
-                message: format!("Failed to downcast {box_type} to Arc<{service_type}>"),
+                message: format!("Failed to downcast service {box_type} to Arc<{service_type}>"),
             }
         })?;
         Ok(service_ptr.clone())
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod test {
+    use crate::*;
+    // TODO: this is a hack. see import_crate in codegen/src/utils.rs
+    use crate as depcon;
+    use std::sync::Arc;
+
+    #[test]
+    fn test_register_duplicate() {
+        #[derive(Injectable)]
+        struct Service;
+        impl_provider!(Service);
+
+        let mut container = Container::empty();
+        container.register::<Service, Service>().unwrap();
+        let actual = container
+            .register::<Service, Service>()
+            .unwrap_err()
+            .to_string();
+        let expected = "Could not register \
+            depcon::container::test::test_register_duplicate::Service for \
+            depcon::container::test::test_register_duplicate::Service due to \
+            conflict with existing provider: \
+            depcon::container::test::test_register_duplicate::Service";
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_service_converter_failure() {
+        #[derive(Injectable, Debug)]
+        struct Service;
+        impl_provider!(Service);
+        let type_info = TypeInfo::of::<Service>();
+
+        let mut container = Container::empty();
+        container.register::<Service, Service>().unwrap();
+        container
+            .providers
+            .insert(type_info, Box::new(Arc::new(0_u8)));
+
+        let actual = container.resolve::<Service>().unwrap_err().to_string();
+        let expected = "Internal error: Failed to downcast provider alloc::boxed::Box<dyn core::any::Any> to Arc<depcon::container::test::test_service_converter_failure::Service>";
+
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_service_downcast_failure() {
+        #[derive(Injectable, Debug)]
+        struct Service;
+        impl_provider!(Service);
+        let type_info = TypeInfo::of::<Service>();
+
+        let mut container = Container::empty();
+        container.register::<Service, Service>().unwrap();
+        container
+            .services
+            .insert(type_info, Box::new(Arc::new(0_u8)));
+
+        let actual = container.resolve::<Service>().unwrap_err().to_string();
+        let expected = "Internal error: Failed to downcast service alloc::boxed::Box<dyn core::any::Any> to Arc<depcon::container::test::test_service_downcast_failure::Service>";
+
+        assert_eq!(actual, expected);
     }
 }

@@ -3,6 +3,7 @@
     clippy::all,
     clippy::nursery,
     clippy::pedantic,
+    clippy::unwrap_used,
     clippy::cargo
 )]
 #![allow(clippy::wildcard_imports)]
