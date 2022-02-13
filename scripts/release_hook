@@ -1,0 +1,47 @@
+#! /usr/bin/env python3
+import os
+import subprocess
+
+CHANGELOG_PATH = "CHANGELOG.md"
+
+def main():
+  dry_run = os.environ["DRY_RUN"] != "false"
+  version = os.environ["NEW_VERSION"]
+
+  contents = None
+  with open(CHANGELOG_PATH, "r") as file:
+    contents = file.read()
+  
+  contents = contents.replace(
+    "## Unreleased",
+    f"## Unreleased\n\n## {version}"
+  )
+
+  print(f"Updating {CHANGELOG_PATH} contents:\n---\n{contents}---")
+  answer = input("Changelog OK? (y/n) ")
+  assert answer == "y", "Aborting changelog update"
+
+  if dry_run:
+    print("(Skipping changelog update due to dry run)")
+  else:
+    print(f"Writing to {CHANGELOG_PATH}")
+    with open(CHANGELOG_PATH, "w") as file:
+      file.write(contents)
+
+  commands = (
+    ("git", "add", CHANGELOG_PATH),
+    ("git", "commit", "-m", f"chore: update {CHANGELOG_PATH} for version {version}"),
+  )
+
+  for command in commands:
+    run(command, dry_run=dry_run)
+
+def run(command_parts, dry_run):
+    print("Running command:", command_parts)
+    if dry_run:
+      print("(Skipping command due to dry run)")
+    else:
+      subprocess.run(command_parts, check=True, capture_output=True)
+
+if __name__ == "__main__":
+  main()
