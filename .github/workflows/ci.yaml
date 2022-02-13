@@ -16,7 +16,7 @@ jobs:
           - stable
           - beta
           - nightly
-          - 1.56.0
+          - 1.58.0
     steps:
       # https://github.com/actions/virtual-environments/issues/264#issuecomment-966491739
       - name: Install zsh
