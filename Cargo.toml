@@ -3,6 +3,7 @@ name = "depcon"
 version = "0.1.0"
 edition = "2021"
 description = "Simple & flexible dependency injection framework"
+license = "MIT"
 license-file = "LICENSE.txt"
 repository = "https://github.com/andybarron/depcon"
 keywords = ["dependency-injection", "di", "inversion-of-control", "ioc"]
