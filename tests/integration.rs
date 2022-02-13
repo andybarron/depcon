@@ -36,7 +36,7 @@ fn test_resolve_chain() {
     struct DbImpl;
 
     impl DbService for DbImpl {}
-    impl_provider!(DbImpl, dyn DbService);
+    provide_trait!(DbImpl, dyn DbService);
 
     #[derive(Injectable, Debug)]
     struct RepoImpl {
@@ -44,7 +44,7 @@ fn test_resolve_chain() {
     }
 
     impl RepoService for RepoImpl {}
-    impl_provider!(RepoImpl, dyn RepoService);
+    provide_trait!(RepoImpl, dyn RepoService);
 
     let mut c = Container::empty();
     c.register::<DbImpl, dyn DbService>().unwrap();
@@ -65,12 +65,12 @@ fn test_dependency_cycle() {
     #[derive(Debug, Injectable)]
     struct CycleImplA(Arc<dyn CycleB>);
     impl CycleA for CycleImplA {}
-    impl_provider!(CycleImplA, dyn CycleA);
+    provide_trait!(CycleImplA, dyn CycleA);
 
     #[derive(Debug, Injectable)]
     struct CycleImplB(Arc<dyn CycleA>);
     impl CycleB for CycleImplB {}
-    impl_provider!(CycleImplB, dyn CycleB);
+    provide_trait!(CycleImplB, dyn CycleB);
 
     let mut c = Container::empty();
     c.register::<CycleImplA, dyn CycleA>().unwrap();
@@ -94,14 +94,14 @@ mod hook {
     #[derive(Debug, Injectable)]
     struct Db;
     impl IDb for Db {}
-    impl_provider!(Db, dyn IDb);
+    provide_trait!(Db, dyn IDb);
     auto_register!(Db, dyn IDb);
 
     trait IRepo: Debug {}
     #[derive(Debug, Injectable)]
     struct Repo;
     impl IRepo for Repo {}
-    impl_provider!(Repo, dyn IRepo);
+    provide_trait!(Repo, dyn IRepo);
     auto_register!(Repo, dyn IRepo);
 
     #[test]

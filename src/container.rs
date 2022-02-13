@@ -199,7 +199,6 @@ mod test {
     fn test_register_duplicate() {
         #[derive(Injectable)]
         struct Service;
-        impl_provider!(Service);
 
         let mut container = Container::empty();
         container.register::<Service, Service>().unwrap();
@@ -220,7 +219,6 @@ mod test {
     fn test_service_converter_failure() {
         #[derive(Injectable, Debug)]
         struct Service;
-        impl_provider!(Service);
         let type_info = TypeInfo::of::<Service>();
 
         let mut container = Container::empty();
@@ -239,7 +237,6 @@ mod test {
     fn test_service_downcast_failure() {
         #[derive(Injectable, Debug)]
         struct Service;
-        impl_provider!(Service);
         let type_info = TypeInfo::of::<Service>();
 
         let mut container = Container::empty();

@@ -6,10 +6,9 @@
 - Add lint to forbid `unwrap()` calls
 - Refactor `Container` methods to remove `unwrap()` calls/panics
 - Tweak error messages for internal downcast errors
-- Rename `provide_trait!` to `impl_provider!`
-- Allow `impl_provider!` and `auto_register` to provide `Self` if no second
-  argument is passed
+- Allow `auto_register` to provide `Self` if no second argument is passed
 - Improve `TypeInfo` `Debug` impl
+- Automatically implement `Provider<Self>` for all types
 
 ## 0.1.0
 
