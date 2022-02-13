@@ -8,7 +8,7 @@ pub fn transform(input: DeriveInput) -> TokenStream {
 
     let name = input.ident;
 
-    let generics = add_trait_bounds(input.generics, &crate_path);
+    let generics = input.generics;
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let body = inject_body(&input.data);
@@ -23,19 +23,6 @@ pub fn transform(input: DeriveInput) -> TokenStream {
     };
 
     expanded
-}
-
-// TODO: Is this necessary?
-// Add a bound `T: Injectable` to every type parameter T.
-fn add_trait_bounds(mut generics: Generics, crate_path: &TokenStream) -> Generics {
-    for param in &mut generics.params {
-        if let GenericParam::Type(ref mut type_param) = *param {
-            type_param
-                .bounds
-                .push(parse_quote!(#crate_path::Injectable));
-        }
-    }
-    generics
 }
 
 // Generate an expression to inject each field from the DI container.
