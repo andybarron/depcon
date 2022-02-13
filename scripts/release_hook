@@ -18,8 +18,6 @@ def main():
   )
 
   print(f"Updating {CHANGELOG_PATH} contents:\n---\n{contents}---")
-  answer = input("Changelog OK? (y/n) ")
-  assert answer == "y", "Aborting changelog update"
 
   if dry_run:
     print("(Skipping changelog update due to dry run)")
