@@ -23,7 +23,7 @@ _**Dep**endency injection **con**tainer_
 [downloads-badge]: https://img.shields.io/crates/d/depcon?labelColor=112&color=informational&style=flat-square
 [license-badge]: https://img.shields.io/crates/l/depcon?labelColor=112&style=flat-square
 [license-url]: https://github.com/andybarron/depcon/blob/main/LICENSE.txt
-[rust-version-badge]: https://img.shields.io/badge/rustc-1.45+-informational?logo=rust&logoColor=fff&labelColor=112&style=flat-square
+[rust-version-badge]: https://img.shields.io/badge/rustc-1.58+-informational?logo=rust&logoColor=fff&labelColor=112&style=flat-square
 [rust-version-link]: https://www.rust-lang.org
 
 ## Quickstart
