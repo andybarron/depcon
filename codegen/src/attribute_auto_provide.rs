@@ -21,3 +21,32 @@ pub fn transform(attribute: &TokenStream, input: ItemImpl) -> TokenStream {
 
     TokenStream::from_iter([base.output, register])
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use quote::quote;
+    use syn::parse2;
+
+    #[test]
+    fn test_auto_provide() {
+        let input = quote! {
+            impl some::Trait for some::Struct {}
+        };
+        let input: ItemImpl = parse2(input).unwrap();
+        let attribute = TokenStream::new();
+        let actual = transform(&attribute, input).to_string();
+        let expected = quote! {
+            impl some::Trait for some::Struct {}
+            impl depcon::Provider<dyn some::Trait> for some::Struct {
+                fn provide(self: std::sync::Arc<Self>) -> std::sync::Arc<dyn some::Trait> {
+                    self
+                }
+            }
+            depcon::auto_register!(some::Struct, dyn some::Trait);
+        }
+        .to_string();
+
+        assert_eq!(actual, expected);
+    }
+}

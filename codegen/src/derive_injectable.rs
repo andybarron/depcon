@@ -1,7 +1,7 @@
 use crate::utils::import_crate;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
-use syn::{parse_quote, spanned::Spanned, Data, DeriveInput, Fields, GenericParam, Generics};
+use syn::{spanned::Spanned, Data, DeriveInput, Fields};
 
 pub fn transform(input: DeriveInput) -> TokenStream {
     let crate_path = import_crate();
