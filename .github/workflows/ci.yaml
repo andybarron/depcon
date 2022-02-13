@@ -46,9 +46,9 @@ jobs:
       # - name: Build (non-stable)
       #   if: ${{ matrix.rust != 'stable' }}
       #   run: just ci-build-only
-      # - name: Run tests and generate coverage report (stable)
-      #   if: ${{ matrix.rust == 'stable' }}
-      #   run: just ci-test-coverage
+      - name: Run tests and generate coverage report (stable)
+        if: ${{ matrix.rust == 'stable' }}
+        run: just ci-test-coverage
       # - name: Run tests (non-stable)
       #   if: ${{ matrix.rust != 'stable' }}
       #   run: just ci-test-only
