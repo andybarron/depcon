@@ -32,7 +32,10 @@ fmt-check:
   cargo fmt --check
 
 publish level:
-  cargo release --execute --workspace {{level}}
+  @# TODO: Re-enable --execute flag:
+  @#       https://github.com/crate-ci/cargo-release/issues/421
+  @# cargo release --execute --workspace {{level}}
+  cargo release --workspace {{level}}
 
 test:
   cargo test --workspace
