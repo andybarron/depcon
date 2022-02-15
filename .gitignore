@@ -3,3 +3,4 @@ Cargo.lock
 *.rs.bk
 cobertura.xml
 tarpaulin-report.html
+__pycache__/
