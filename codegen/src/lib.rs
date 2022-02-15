@@ -23,7 +23,6 @@ pub fn derive_injectable(input: TokenStream) -> TokenStream {
     derive_injectable::transform(input).into()
 }
 
-// TODO: support on struct definitions to provide Arc<Self>
 /// Procedural macro for `#[provide]`
 #[cfg(not(tarpaulin_include))]
 #[proc_macro_attribute]
