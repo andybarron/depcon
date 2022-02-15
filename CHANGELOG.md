@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.0
+
 - **Breaking:** Reject attribute parameters from `#[provide]` and `#[auto_provide]`
 
 ## 0.2.0
