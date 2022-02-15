@@ -11,7 +11,8 @@ pub struct ProvideAttribute {
 }
 
 // TODO: Assert attribute stream is empty
-pub fn transform(_attribute: &TokenStream, input: ItemImpl) -> ProvideAttribute {
+pub fn transform(attribute: &TokenStream, input: ItemImpl) -> ProvideAttribute {
+    assert!(attribute.is_empty(), "attribute does not accept parameters");
     let struct_type = input.self_ty.to_token_stream();
     let trait_ = input
         .trait_
@@ -116,5 +117,16 @@ mod test {
         .to_string();
 
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    #[should_panic(expected = "attribute does not accept parameters")]
+    fn test_reject_params() {
+        let input = quote! {
+            impl Trait for Struct {}
+        };
+        let input: ItemImpl = parse2(input).unwrap();
+        let attribute = quote! { bad };
+        transform(&attribute, input);
     }
 }

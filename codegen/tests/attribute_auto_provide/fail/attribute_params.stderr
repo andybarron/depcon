@@ -1,0 +1,7 @@
+error: custom attribute panicked
+ --> tests/attribute_auto_provide/fail/attribute_params.rs:6:1
+  |
+6 | #[auto_provide(bad)]
+  | ^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: message: attribute does not accept parameters

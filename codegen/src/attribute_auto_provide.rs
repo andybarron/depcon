@@ -49,4 +49,15 @@ mod test {
 
         assert_eq!(actual, expected);
     }
+
+    #[test]
+    #[should_panic(expected = "attribute does not accept parameters")]
+    fn test_reject_params() {
+        let input = quote! {
+            impl Trait for Struct {}
+        };
+        let input: ItemImpl = parse2(input).unwrap();
+        let attribute = quote! { bad };
+        transform(&attribute, input);
+    }
 }
