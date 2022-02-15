@@ -1,6 +1,6 @@
 [package]
 name = "depcon_codegen"
-version = "0.3.0"
+version = "0.3.1-dev"
 edition = "2021"
 description = "Code generation macros for depcon dependency injection framework"
 license-file = "../LICENSE.txt"

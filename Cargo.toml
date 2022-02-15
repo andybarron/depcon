@@ -1,6 +1,6 @@
 [package]
 name = "depcon"
-version = "0.3.0"
+version = "0.3.1-dev"
 edition = "2021"
 description = "Simple & flexible dependency injection framework"
 license = "MIT"
@@ -14,7 +14,7 @@ members = [
 ]
 
 [dependencies]
-depcon_codegen = { path = "./codegen", version = "0.3.0", optional = true }
+depcon_codegen = { path = "./codegen", version = "0.3.1-dev", optional = true }
 derivative = "2.2.0"
 inventory = "0.2.2"
 thiserror = "1.0.30"
