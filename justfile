@@ -1,12 +1,17 @@
 set shell := ["zsh", "--pipefail", "-euc"]
+set positional-arguments
 
 # interactive commands
 
-default: check
+# list all commands
+default:
+  @just --list
 
+# build & lint
 check:
   cargo clippy
 
+# run all tests & generate coverage report
 coverage:
   cargo tarpaulin -v --workspace \
     --all-features --ignore-tests \
@@ -14,29 +19,35 @@ coverage:
     --timeout 180 \
     --output-dir target/coverage
 
+# serve HTML coverage report
 coverage-server:
-  echo "http://localhost:8000/tarpaulin-report.html"
+  @echo "coverage report: http://localhost:8000/tarpaulin-report.html"
   python3 -m http.server --directory target/coverage
 
+# build docs
 doc:
   cargo doc --workspace
 
+# serve docs
 doc-server:
-  echo "http://localhost:8000/depcon"
+  @echo "docs: http://localhost:8000/depcon"
   python3 -m http.server --directory target/doc
 
+# format code
 fmt:
   cargo fmt
 
+# check code format, but don't apply any changes
 fmt-check:
   cargo fmt --check
 
-publish level:
-  @# TODO: Re-enable --execute flag:
-  @#       https://github.com/crate-ci/cargo-release/issues/421
-  @# cargo release --execute --workspace {{level}}
-  cargo release --workspace {{level}}
+# publish to crates.io & push release tags - pass new version as first arg
+publish *args:
+  cargo release --workspace "$@"
 
+alias release := publish
+
+# run all tests
 test:
   cargo test --workspace
 
